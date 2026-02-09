@@ -1,0 +1,50 @@
+site_name: OWI Metadatabase {{ project_name | title }} Extension
+site_description: {{ project_description }}
+site_author: {{ author_name }}
+site_url: https://owi-lab.github.io/owi-metadatabase-{{ project_slug }}/
+repo_url: https://github.com/OWI-Lab/owi-metadatabase-{{ project_slug }}
+repo_name: OWI-Lab/owi-metadatabase-{{ project_slug }}
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: indigo
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: indigo
+
+plugins:
+  - search:
+      lang: en
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: true
+            show_root_heading: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.highlight
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - API Reference:
+      - Overview: api/index.md
+  - Development:
+      - Namespace Packages: development/namespace_packages.md

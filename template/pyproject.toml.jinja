@@ -1,0 +1,99 @@
+[project]
+name = "owi-metadatabase-{{ project_slug }}"
+version = "0.1.0"
+description = "{{ project_description }}"
+authors = [
+    { name = "{{ author_name }}", email = "{{ author_email }}" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">={{ python_version }},<3.15"
+
+keywords = ["owimetadatabase", "extension", "{{ project_slug }}"]
+
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "owi-metadatabase>={{ base_package_version }}",
+    {% if include_numerical %}
+    "scipy>=1.14.0",
+    "scikit-learn>=1.3.0",
+    {% endif %}
+    {% if include_visualization %}
+    "plotly>=5.19.0",
+    "matplotlib>=3.10.0",
+    {% endif %}
+]
+
+[dependency-groups]
+dev = [
+    {include-group = "test"},
+    {include-group = "lint"},
+    {include-group = "typing"},
+    {include-group = "docs"},
+    {include-group = "dev-tools"},
+]
+test = [
+    "pytest>=8.4.0",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.0",
+]
+lint = [
+    "ruff>=0.12.9",
+]
+typing = [
+    "ty>=0.0.14",
+    "types-requests>=2.32.0",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+]
+dev-tools = [
+    "invoke>=2.2.0",
+    "pre-commit>=3.0.0",
+]
+
+[project.urls]
+repository = "https://github.com/OWI-Lab/owi-metadatabase-{{ project_slug }}"
+documentation = "https://owi-lab.github.io/owi-metadatabase-{{ project_slug }}/"
+
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/owi"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "-v",
+    "--cov=src/owi/metadatabase/{{ project_slug }}",
+    "--cov-report=term-missing:skip-covered",
+    "--doctest-modules",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py{{ python_version | replace('.', '') }}"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "D", "UP", "B", "C4", "SIM"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+known-first-party = ["owi.metadatabase.{{ project_slug }}"]

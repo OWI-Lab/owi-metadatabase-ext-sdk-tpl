@@ -1,0 +1,36 @@
+"""API client for the {{ project_name }} extension."""
+
+from __future__ import annotations
+
+
+class {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API:
+    """Simple API client for {{ project_name }}.
+
+    Parameters
+    ----------
+    api_key : str | None, optional
+        API key for OWI Metadatabase
+    base_url : str | None, optional
+        Base URL for the OWI Metadatabase API
+
+    Examples
+    --------
+    >>> api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API()
+    >>> api.ping()
+    'ok'
+    """
+
+    def __init__(self, api_key: str | None = None, base_url: str | None = None) -> None:
+        self.api_key = api_key
+        self.base_url = base_url or "https://owimetadatabase.azurewebsites.net"
+
+    def ping(self) -> str:
+        """Return a basic health response.
+
+        Examples
+        --------
+        >>> api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API()
+        >>> api.ping()
+        'ok'
+        """
+        return "ok"

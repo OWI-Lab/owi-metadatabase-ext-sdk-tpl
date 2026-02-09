@@ -1,0 +1,27 @@
+# OWI Metadatabase {{ project_name | title }} Extension
+
+{{ project_description }}
+
+## Installation
+
+```bash
+pip install owi-metadatabase-{{ project_slug }}
+```
+
+## Usage
+
+```python
+from owi.metadatabase.{{ project_slug }}.io import {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API
+
+api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API(api_key="your-api-key")
+print(api.ping())
+```
+
+## Development
+
+```bash
+uv sync --dev
+uv run invoke test.run
+uv run invoke qa.all
+uv run invoke docs.build
+```

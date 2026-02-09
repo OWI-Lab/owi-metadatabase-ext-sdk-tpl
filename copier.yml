@@ -1,0 +1,57 @@
+_subdirectory: template
+_templates_suffix: .jinja
+_answers_file: .copier-answers.yml
+
+project_name:
+  type: str
+  help: Extension name (e.g., soil, fatigue)
+  validator: >-
+    {% if not project_name %}
+    Extension name is required
+    {% endif %}
+
+project_slug:
+  type: str
+  default: "{{ project_name | lower | replace(' ', '-') }}"
+  help: Project slug for package name
+
+project_description:
+  type: str
+  help: Short description of the extension
+  default: "{{ project_name }} extension for OWI Metadatabase SDK"
+
+author_name:
+  type: str
+  help: Author name
+  default: "OWI-Lab"
+
+author_email:
+  type: str
+  help: Author email
+  default: "info@owi-lab.be"
+
+python_version:
+  type: str
+  help: Minimum Python version
+  default: "3.9"
+  choices:
+    - "3.9"
+    - "3.10"
+    - "3.11"
+    - "3.12"
+    - "3.13"
+
+base_package_version:
+  type: str
+  help: Minimum owi-metadatabase version required
+  default: "0.11.0"
+
+include_visualization:
+  type: bool
+  help: Include visualization dependencies (plotly, matplotlib)?
+  default: false
+
+include_numerical:
+  type: bool
+  help: Include numerical dependencies (scipy, scikit-learn)?
+  default: false
