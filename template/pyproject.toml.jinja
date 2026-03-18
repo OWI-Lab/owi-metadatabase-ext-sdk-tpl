@@ -44,21 +44,31 @@ dev = [
     {include-group = "dev-tools"},
 ]
 test = [
-    "pytest>=8.4.0",
-    "pytest-cov>=7.0.0",
-    "pytest-mock>=3.15.0",
+    "pytest >=8.4.0",
+    "pytest-mock >=3.15.0",
+    "pytest-xdist >=3.7.0",
+    "pytest-clarity >=1.0.0",
+    "pytest-cov >=7.0.0",
+    "requests-mock >=1.12.1",
+    "hypothesis >=6.100.0"
 ]
 lint = [
     "ruff>=0.12.9",
 ]
 typing = [
-    "ty>=0.0.14",
-    "types-requests>=2.32.0",
+    "ty >=0.0.14",
+    "pandas-stubs >=2.0.0,<2.2.3.241009 ; python_version < '3.10'",
+    "pandas-stubs >=2.2.3.241009 ; python_version >= '3.10'",
+    "types-requests >=2.32.0",
 ]
 docs = [
-    "mkdocs>=1.6.0",
-    "mkdocs-material>=9.5.0",
-    "mkdocstrings[python]>=0.27.0",
+    "mkdocs >=1.6.0",
+    "mkdocs-material >=9.5.0",
+    "mkdocstrings[python] >=0.27.0",
+    "mkdocs-jupyter >=0.25.0",
+    "mkdocs-git-revision-date-localized-plugin >=1.3.0",
+    "mkdocs-minify-plugin >=0.8.0",
+    "mike >=2.0.0",
 ]
 dev-tools = [
     "invoke>=2.2.0",
@@ -67,8 +77,9 @@ dev-tools = [
 ]
 
 [project.urls]
-repository = "https://github.com/OWI-Lab/owi-metadatabase-{{ project_slug }}"
-documentation = "https://owi-lab.github.io/owi-metadatabase-{{ project_slug }}/"
+homepage = "https://owi-lab.github.io/owi-metadatabase-sdk/"
+repository = "https://github.com/OWI-Lab/owi-metadatabase-{{ project_slug }}-sdk"
+documentation = "https://owi-lab.github.io/owi-metadatabase-{{ project_slug }}-sdk/"
 
 [build-system]
 requires = ["hatchling>=1.25.0"]
@@ -79,11 +90,24 @@ packages = ["src/owi"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 addopts = [
     "-v",
-    "--cov=src/owi/metadatabase/{{ project_slug }}",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--tb=short",
+    "--cov=src/owi/metadatabase/soil",
+    "--cov-report=html",
     "--cov-report=term-missing:skip-covered",
     "--doctest-modules",
+    "--doctest-continue-on-failure",
+    "--doctest-glob=*.md",
+]
+doctest_optionflags = [
+    "NORMALIZE_WHITESPACE",
+    "ELLIPSIS",
+    "NUMBER",
+    "IGNORE_EXCEPTION_DETAIL",
 ]
 
 [tool.ruff]
@@ -92,6 +116,17 @@ target-version = "py{{ python_version | replace('.', '') }}"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "D", "UP", "B", "C4", "SIM"]
+ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "D205",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
@@ -103,3 +138,6 @@ known-first-party = ["owi.metadatabase.{{ project_slug }}"]
 DEP002 = ["plotly", "matplotlib", "pyproj", "tqdm"]
 DEP003 = ["owi"]
 DEP004 = ["owi"]
+
+# [tool.uv.sources]
+# owi-metadatabase = { index = "testpypi" }
