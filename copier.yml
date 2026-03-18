@@ -44,7 +44,7 @@ python_version:
 base_package_version:
   type: str
   help: Minimum owi-metadatabase version required
-  default: "0.11.0"
+  default: "0.1.0"
 
 include_visualization:
   type: bool

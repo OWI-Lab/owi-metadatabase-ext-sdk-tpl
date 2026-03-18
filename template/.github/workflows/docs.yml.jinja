@@ -9,7 +9,7 @@ on:
     branches: ["main"]
 
 concurrency:
-  group: docs-${{ github.ref }}
+  group: docs-{% raw %}${{ github.ref }}{% endraw %}
   cancel-in-progress: true
 
 permissions:
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'pull_request' }}
+    if: {% raw %}${{ github.event_name == 'pull_request' }}{% endraw %}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
           path: site/
 
   deploy:
-    if: ${{ github.event_name == 'push' }}
+    if: {% raw %}${{ github.event_name == 'push' }}{% endraw %}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -82,16 +82,16 @@ jobs:
       - name: Deploy versioned docs with mike
         run: |
           uv run invoke docs.deploy-version \
-            --version "${{ steps.docs_version.outputs.version }}" \
-            --alias "${{ steps.docs_version.outputs.alias }}"
+            --version "{% raw %}${{ steps.docs_version.outputs.version }}{% endraw %}" \
+            --alias "{% raw %}${{ steps.docs_version.outputs.alias }}{% endraw %}"
       - name: Set default docs version
-        if: ${{ steps.docs_version.outputs.set_default == 'true' }}
+        if: {% raw %}${{ steps.docs_version.outputs.set_default == 'true' }}{% endraw %}
         run: |
           uv run invoke docs.set-default-version \
-            --version "${{ steps.docs_version.outputs.version }}"
+            --version "{% raw %}${{ steps.docs_version.outputs.version }}{% endraw %}"
 
   deploy-package:
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    if: {% raw %}${{ startsWith(github.ref, 'refs/tags/v') }}{% endraw %}
     needs: [deploy]
     permissions:
       contents: read
@@ -100,7 +100,7 @@ jobs:
     secrets: inherit
 
   release:
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    if: {% raw %}${{ startsWith(github.ref, 'refs/tags/v') }}{% endraw %}
     needs: [deploy-package]
     permissions:
       contents: write

@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   release:
-    if: ${{ github.event.pull_request.merged == true }}
+    if: {% raw %}${{ github.event.pull_request.merged == true }}{% endraw %}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -39,13 +39,13 @@ jobs:
         id: release_plan
         run: |
           python .github/scripts/release_version.py plan \
-            --labels-json '${{ toJson(github.event.pull_request.labels.*.name) }}' \
+            --labels-json '{% raw %}${{ toJson(github.event.pull_request.labels.*.name) }}{% endraw %}' \
             --github-output "$GITHUB_OUTPUT"
 
       - name: Fail if tag already exists
         run: |
-          if git rev-parse "v${{ steps.release_plan.outputs.next_version }}" >/dev/null 2>&1; then
-            echo "Tag v${{ steps.release_plan.outputs.next_version }} already exists." >&2
+          if git rev-parse "v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}" >/dev/null 2>&1; then
+            echo "Tag v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %} already exists." >&2
             exit 1
           fi
 
@@ -61,7 +61,7 @@ jobs:
       - name: Apply release version
         run: |
           python .github/scripts/release_version.py apply \
-            --new-version "${{ steps.release_plan.outputs.next_version }}"
+            --new-version "{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
 
       - name: Configure git
         run: |
@@ -78,20 +78,20 @@ jobs:
             tests/test_imports.py \
             tests/test_namespace.py \
             uv.lock
-          git commit -m "Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}"
-          git tag -a "v${{ steps.release_plan.outputs.next_version }}" -m "Release v${{ steps.release_plan.outputs.next_version }}"
+          git commit -m "Bumpversion {% raw %}${{ steps.release_plan.outputs.current_version }}{% endraw %} -> v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
+          git tag -a "v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}" -m "Release v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
 
       - name: Push release commit and tag
         run: |
           git push origin HEAD:main
-          git push origin "v${{ steps.release_plan.outputs.next_version }}"
+          git push origin "v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
 
       - name: Summarize release
         run: |
           {
             echo "## Release Created"
             echo
-            echo "- Merged pull request: #${{ github.event.pull_request.number }}"
-            echo "- Release bump: ${{ steps.release_plan.outputs.bump_type }}"
-            echo "- Published tag trigger: v${{ steps.release_plan.outputs.next_version }}"
+            echo "- Merged pull request: #{% raw %}${{ github.event.pull_request.number }}{% endraw %}"
+            echo "- Release bump: {% raw %}${{ steps.release_plan.outputs.bump_type }}{% endraw %}"
+            echo "- Published tag trigger: v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
           } >> "$GITHUB_STEP_SUMMARY"

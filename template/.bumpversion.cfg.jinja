@@ -21,4 +21,6 @@ search = name = "{{project_name | lower }}"
 replace = name = "{{project_name | lower }}"
 	version = "{new_version}"
 
-[bumpversion:file:./src/owi/metadatabase/_version.py]
+[bumpversion:file:./src/owi/metadatabase/{{ project_slug }}/__init__.py]
+search = __version__ = "{current_version}"
+replace = __version__ = "{new_version}"
