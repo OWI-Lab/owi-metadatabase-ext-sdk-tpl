@@ -63,6 +63,7 @@ docs = [
 dev-tools = [
     "invoke>=2.2.0",
     "pre-commit>=3.0.0",
+    "deptry >=0.23.1"
 ]
 
 [project.urls]
@@ -97,3 +98,8 @@ convention = "numpy"
 
 [tool.ruff.lint.isort]
 known-first-party = ["owi.metadatabase.{{ project_slug }}"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["plotly", "matplotlib", "pyproj", "tqdm"]
+DEP003 = ["owi"]
+DEP004 = ["owi"]
