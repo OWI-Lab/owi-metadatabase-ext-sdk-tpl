@@ -15,14 +15,6 @@ copier copy \
   owi-metadatabase-soil-sdk
 ```
 
-## What You Get
-
-- PEP 420-compatible package layout under `owi.metadatabase.<extension>`
-- uv + invoke workflow
-- ruff + ty quality checks
-- pytest with doctest support
-- MkDocs skeleton
-
 ## Local Development
 
 ```bash
@@ -32,3 +24,11 @@ uv run invoke test.run
 uv run invoke qa.all
 uv run invoke docs.build
 ```
+
+## What You Get
+
+- PEP 420-compatible package layout under `owi.metadatabase.<extension>`
+- uv + invoke + pre-commit setup for development workflow
+- ruff + ty quality checks
+- pytest with doctest support
+- MkDocs skeleton
