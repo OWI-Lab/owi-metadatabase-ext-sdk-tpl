@@ -1,35 +1,47 @@
-"""API client for the {{ project_name }} extension."""
+"""API client for the {{ project_name }} extension.
+
+This module exposes :class:`{{ project_name | replace('-', ' ') | title | replace(' ', '') }}API`
+as the main entry point for the generated extension package.
+
+Examples
+--------
+>>> from owi.metadatabase.{{ project_slug }} import {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API
+>>> isinstance({{ project_name | replace('-', ' ') | title | replace(' ', '') }}API(token="dummy"), {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API)
+True
+"""
 
 from __future__ import annotations
 
+from owi.metadatabase.io import API
 
-class {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API:
+
+class {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API(API):
     """Simple API client for {{ project_name }}.
 
     Parameters
     ----------
-    api_key : str | None, optional
-        API key for OWI Metadatabase
-    base_url : str | None, optional
-        Base URL for the OWI Metadatabase API
+    api_subdir : str, default="/{{ project_slug }}/"
+        API sub-path appended to the base root.
+    **kwargs
+        Forwarded to :class:`owi.metadatabase.io.API`.
 
     Examples
     --------
-    >>> api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API()
+    >>> api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API(token="dummy")
     >>> api.ping()
     'ok'
     """
 
-    def __init__(self, api_key: str | None = None, base_url: str | None = None) -> None:
-        self.api_key = api_key
-        self.base_url = base_url or "https://owimetadatabase.azurewebsites.net"
+    def __init__(self, api_subdir: str = "/{{ project_slug }}/", **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.api_root = self.api_root + api_subdir
 
     def ping(self) -> str:
         """Return a basic health response.
 
         Examples
         --------
-        >>> api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API()
+        >>> api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API(token="dummy")
         >>> api.ping()
         'ok'
         """

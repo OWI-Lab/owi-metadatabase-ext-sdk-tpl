@@ -71,6 +71,7 @@ docs = [
     "mike >=2.0.0",
 ]
 dev-tools = [
+    "bump2version>=1.0.1",
     "invoke>=2.2.0",
     "pre-commit>=3.0.0",
     "deptry >=0.23.1"
@@ -96,7 +97,7 @@ addopts = [
     "--import-mode=importlib",
     "--strict-markers",
     "--tb=short",
-    "--cov=src/owi/metadatabase/soil",
+    "--cov=src/owi/metadatabase/{{ project_slug }}",
     "--cov-report=html",
     "--cov-report=term-missing:skip-covered",
     "--doctest-modules",
@@ -133,6 +134,14 @@ convention = "numpy"
 
 [tool.ruff.lint.isort]
 known-first-party = ["owi.metadatabase.{{ project_slug }}"]
+
+[tool.uv.workspace]
+members = ["."]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple"
+explicit = true
 
 [tool.deptry.per_rule_ignores]
 DEP002 = ["plotly", "matplotlib", "pyproj", "tqdm", "scipy", "sklearn"]

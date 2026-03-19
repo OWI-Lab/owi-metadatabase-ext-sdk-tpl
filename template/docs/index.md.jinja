@@ -1,12 +1,24 @@
 # {{ project_name | title }} Extension
 
-{{ project_description }}
+The `owi-metadatabase-{{ project_slug }}` package extends the
+`owi.metadatabase` namespace with {{ project_slug }}-specific API behavior.
+
+## Scope
+
+- Package and expose extension-specific API helpers
+- Keep the namespace package layout consistent with existing extensions
+- Provide NumPy-style docstrings and doctest-friendly examples
 
 ## Quick Example
 
 ```python
-from owi.metadatabase.{{ project_slug }}.io import {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API
+from owi.metadatabase.{{ project_slug }} import {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API
 
 api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API()
 print(api.ping())
 ```
+
+## Documentation Style
+
+API docstrings in this extension should follow the NumPy docstring convention
+and include doctest-style usage examples.

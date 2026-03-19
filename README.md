@@ -18,12 +18,23 @@ copier copy \
 ## Local Development
 
 ```bash
-cd owi-metadatabase-soil
 uv sync --dev
-uv run invoke test.run
-uv run invoke qa.all
-uv run invoke docs.build
+/bin/python3 scripts/validate_template.py
 ```
+
+## Template Validation
+
+The template repository validates itself by rendering a temporary sample
+extension and running its generated test suite.
+
+Run it locally with:
+
+```bash
+/bin/python3 scripts/validate_template.py
+```
+
+The same check also runs in GitHub Actions via
+`.github/workflows/template-validation.yml`.
 
 ## What You Get
 
@@ -32,3 +43,4 @@ uv run invoke docs.build
 - ruff + ty quality checks
 - pytest with doctest support
 - MkDocs skeleton
+- Release-first GitHub Actions workflows matching the live extension repos

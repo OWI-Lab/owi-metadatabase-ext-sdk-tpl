@@ -11,15 +11,15 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
-  release:
-    if: {% raw %}${{ github.event.pull_request.merged == true }}{% endraw %}
+  prepare-release-pr:
+    if: {% raw %}${{ github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'release/v') }}{% endraw %}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
@@ -35,6 +35,9 @@ jobs:
           python-version: "3.13"
           enable-cache: true
 
+      - name: Install dependencies
+        run: uv sync --dev  # I do not want to use the lock file here since we want to test the release candidate with the latest dependencies, not necessarily the ones from the last release
+
       - name: Resolve release plan
         id: release_plan
         run: |
@@ -48,9 +51,6 @@ jobs:
             echo "Tag v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %} already exists." >&2
             exit 1
           fi
-
-      - name: Install dependencies
-        run: uv sync --dev --locked
 
       - name: Validate release candidate
         run: |
@@ -68,30 +68,105 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit and tag release
-        run: |
-          git add \
-            .bumpversion.cfg \
-            GitVersion.yml \
-            pyproject.toml \
-            src/owi/metadatabase/{{ project_slug }}/__init__.py \
-            tests/test_imports.py \
-            tests/test_namespace.py \
+      - name: Create release pull request
+        id: release_pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: release/v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}
+          delete-branch: true
+          commit-message: Bumpversion {% raw %}${{ steps.release_plan.outputs.current_version }}{% endraw %} -> v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}
+          title: Bumpversion {% raw %}${{ steps.release_plan.outputs.current_version }}{% endraw %} -> v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}
+          body: |
+            Automated release PR for version v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}.
+
+            Source merged PR: #{% raw %}${{ github.event.pull_request.number }}{% endraw %}
+            Release bump: {% raw %}${{ steps.release_plan.outputs.bump_type }}{% endraw %}
+          add-paths: |
+            .bumpversion.cfg
+            GitVersion.yml
+            pyproject.toml
+            src/owi/metadatabase/{{ project_slug }}/__init__.py
+            tests/test_imports.py
             uv.lock
-          git commit -m "Bumpversion {% raw %}${{ steps.release_plan.outputs.current_version }}{% endraw %} -> v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
-          git tag -a "v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}" -m "Release v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
 
-      - name: Push release commit and tag
-        run: |
-          git push origin HEAD:main
-          git push origin "v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
+      - name: Enable release PR auto-merge
+        if: {% raw %}${{ steps.release_pr.outputs.pull-request-number != '' }}{% endraw %}
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: {% raw %}${{ steps.release_pr.outputs.pull-request-number }}{% endraw %}
+          merge-method: squash
 
-      - name: Summarize release
+      - name: Summarize release preparation
         run: |
           {
-            echo "## Release Created"
+            echo "## Release PR Prepared"
             echo
             echo "- Merged pull request: #{% raw %}${{ github.event.pull_request.number }}{% endraw %}"
             echo "- Release bump: {% raw %}${{ steps.release_plan.outputs.bump_type }}{% endraw %}"
-            echo "- Published tag trigger: v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
+            echo "- Target version: v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
+            echo "- Release PR operation: {% raw %}${{ steps.release_pr.outputs.pull-request-operation || 'none' }}{% endraw %}"
+            echo "- Release PR: {% raw %}${{ steps.release_pr.outputs.pull-request-url || 'not created' }}{% endraw %}"
+            echo "- Release PR auto-merge: enabled"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  tag-release:
+    if: {% raw %}${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}{% endraw %}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: release_tag
+        run: |
+          tag="{% raw %}${{ github.event.pull_request.head.ref }}{% endraw %}"
+          tag="${tag#release/}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if tag already exists
+        run: |
+          if git rev-parse "{% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %}" >/dev/null 2>&1; then
+            echo "Tag {% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %} already exists." >&2
+            exit 1
+          fi
+
+      - name: Verify merged version matches tag
+        run: |
+          project_version="$(sed -n 's/^version = "\([0-9][0-9.]*\)"$/\1/p' pyproject.toml | head -n1)"
+          if [[ "v${project_version}" != "{% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %}" ]]; then
+            echo "Expected pyproject version v${project_version} to match {% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %}." >&2
+            exit 1
+          fi
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push release tag
+        run: |
+          git tag -a "{% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %}" -m "Release {% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %}"
+          git push origin "{% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %}"
+
+      - name: Summarize release tag
+        run: |
+          {
+            echo "## Release Tagged"
+            echo
+            echo "- Merged release PR: #{% raw %}${{ github.event.pull_request.number }}{% endraw %}"
+            echo "- Published tag trigger: {% raw %}${{ steps.release_tag.outputs.tag }}{% endraw %}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  publish-package:
+    if: {% raw %}${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}{% endraw %}
+    needs: [tag-release]
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/publish.yml
+    with:
+      target_ref: main
+    secrets: inherit

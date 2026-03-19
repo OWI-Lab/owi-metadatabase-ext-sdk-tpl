@@ -24,3 +24,7 @@ replace = name = "{{project_name | lower }}"
 [bumpversion:file:./src/owi/metadatabase/{{ project_slug }}/__init__.py]
 search = __version__ = "{current_version}"
 replace = __version__ = "{new_version}"
+
+[bumpversion:file:./tests/test_imports.py]
+search = assert __version__ == "{current_version}"
+replace = assert __version__ == "{new_version}"

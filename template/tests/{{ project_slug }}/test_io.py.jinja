@@ -1,10 +1,12 @@
-from owi.metadatabase.{{ project_slug }}.io import {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API
+from owi.metadatabase.{{ project_slug }} import {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API
 
 
 def test_ping() -> None:
-    api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API()
+    api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API(token="dummy")
     assert api.ping() == "ok"
 
+
 def test_default_base_url() -> None:
-    api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API()
-    assert api.base_url.startswith("https://")
+    api = {{ project_name | replace('-', ' ') | title | replace(' ', '') }}API(token="dummy")
+    assert api.api_root.startswith("https://")
+    assert api.api_root.endswith("/{{ project_slug }}/")

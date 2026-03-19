@@ -2,6 +2,11 @@ name: Publish Python package
 
 on:
   workflow_call:
+    inputs:
+      target_ref:
+        description: Git ref to checkout for publishing.
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       confirm_publish:
@@ -17,10 +22,12 @@ jobs:
   publish:
     if: {% raw %}${{ github.event_name == 'workflow_call' || inputs.confirm_publish == true }}{% endraw %}
     runs-on: ubuntu-latest
+    outputs:
+      published_version: {% raw %}${{ steps.package_version.outputs.version }}{% endraw %}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
-        ref: {% raw %}${{ github.ref_name }}{% endraw %}
+        ref: {% raw %}${{ inputs.target_ref || github.ref_name }}{% endraw %}
     - name: Require main branch for manual publish
       if: {% raw %}${{ github.event_name == 'workflow_dispatch' }}{% endraw %}
       run: |
@@ -43,6 +50,10 @@ jobs:
       run: uv build
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+    - name: Resolve published version
+      id: package_version
+      run: |
+        echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
     - name: Summarize manual publish
       if: {% raw %}${{ github.event_name == 'workflow_dispatch' }}{% endraw %}
       run: |
@@ -53,3 +64,16 @@ jobs:
           echo "- Published version: $(uv version --short)"
           echo "- Trigger: workflow_dispatch"
         } >> "$GITHUB_STEP_SUMMARY"
+
+  documentation:
+    if: {% raw %}${{ github.event_name == 'workflow_call' }}{% endraw %}
+    needs: [publish]
+    permissions:
+      contents: write
+    uses: ./.github/workflows/docs.yml
+    with:
+      target_ref: {% raw %}${{ inputs.target_ref || 'main' }}{% endraw %}
+      docs_version: {% raw %}${{ needs.publish.outputs.published_version }}{% endraw %}
+      docs_alias: latest
+      set_default: true
+    secrets: inherit
