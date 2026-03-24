@@ -1,0 +1,46 @@
+# Architecture
+
+The {{ project_name | title }} extension follows the standard OWI Metadatabase SDK
+extension pattern: inherit from the base `API` class and append a
+sub-path to `api_root`.
+
+## Layer Diagram
+
+```mermaid
+flowchart TD
+    subgraph Client Code
+        U[User script / notebook]
+    end
+
+    subgraph Extension SDK
+        API[{{ project_name | replace('-', ' ') | title | replace(' ', '') }}API]
+    end
+
+    subgraph Base SDK
+        BASE[owi.metadatabase.io.API]
+    end
+
+    subgraph Backend
+        REST[Django REST API]
+    end
+
+    U --> API
+    API -->|inherits| BASE
+    BASE -->|HTTP| REST
+```
+
+## Request Lifecycle
+
+1. User calls a method on the extension API.
+2. The method builds URL parameters and delegates to `self.process_data()`.
+3. The base SDK performs a health check, sends the HTTP request, and
+   decodes JSON into a DataFrame.
+4. The extension post-processes and returns the typed result.
+
+## Extension Point
+
+New extension packages created from this template should:
+
+- Add domain-specific methods to the API class.
+- Return `{"data": DataFrame, "exists": bool}` from list endpoints.
+- Keep the `api_subdir` default pointing to the correct backend path.

@@ -42,5 +42,5 @@ The same check also runs in GitHub Actions via
 - uv + invoke + pre-commit setup for development workflow
 - ruff + ty quality checks
 - pytest with doctest support
-- MkDocs skeleton
+- Zensical docs skeleton
 - Release-first GitHub Actions workflows matching the live extension repos

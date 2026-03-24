@@ -1,0 +1,36 @@
+# Testing
+
+## Running the Test Suite
+
+```bash
+uv run inv test.all
+```
+
+This command runs:
+
+| Step | Description |
+|------|-------------|
+| **Unit tests** | `tests/` directory via pytest |
+| **Doctests** | Inline examples in source modules |
+| **Coverage** | HTML report in `htmlcov/` |
+
+## Configuration
+
+Pytest is configured in `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+    "--cov=src/owi/metadatabase/{{ project_slug }}",
+    "--cov-report=html",
+    "--doctest-modules",
+]
+testpaths = ["tests", "src"]
+```
+
+## Writing Tests
+
+- Mirror the source tree under `tests/{{ project_slug }}/`.
+- Mock `owi.metadatabase.{{ project_slug }}.io.API.process_data` for API tests.
+- Keep tests focused and independent.

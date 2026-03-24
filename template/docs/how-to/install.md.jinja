@@ -1,6 +1,6 @@
-# Installation
+# Install the SDK
 
-## Install as extension package (`owi-metadatabase-{{ project_slug }}`)
+## As a standalone package
 
 ```bash
 pip install owi-metadatabase-{{ project_slug }}
@@ -12,9 +12,7 @@ Using `uv`:
 uv pip install owi-metadatabase-{{ project_slug }}
 ```
 
-## Install from core package extra (`owi-metadatabase[{{ project_slug }}]`)
-
-If you prefer installing from the base package extras:
+## As a core-package extra
 
 ```bash
 pip install "owi-metadatabase[{{ project_slug }}]"
@@ -29,5 +27,7 @@ uv pip install "owi-metadatabase[{{ project_slug }}]"
 ## Development setup
 
 ```bash
+git clone https://github.com/OWI-Lab/owi-metadatabase-{{ project_slug }}-sdk.git
+cd owi-metadatabase-{{ project_slug }}-sdk
 uv sync --dev
 ```
