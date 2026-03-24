@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 concurrency:
-  group: ci-{% raw %}${{ github.ref }}{% endraw %}
+  group: ci-{% raw %}${{ '{{ github.ref }} '}}{% endraw %}
   cancel-in-progress: true
 
 permissions:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test:
-    if: {% raw %}${{ ! contains(github.event.head_commit.message, 'Bumpversion') }}{% endraw %}
+    if: {% raw %}${{ '{{ ! contains(github.event.head_commit.message, 'Bumpversion') }} '}}{% endraw %}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,14 +30,14 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
-      - name: Set up Python {% raw %}${{ matrix.python-version }}{% endraw %}
+      - name: Set up Python {% raw %}${{ '{{ matrix.python-version }} '}}{% endraw %}
         uses: actions/setup-python@v5
         with:
-          python-version: {% raw %}${{ matrix.python-version }}{% endraw %}
+          python-version: {% raw %}${{ '{{ matrix.python-version }} '}}{% endraw %}
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: {% raw %}${{ matrix.python-version }}{% endraw %}
+          python-version: {% raw %}${{ '{{ matrix.python-version }} '}}{% endraw %}
           enable-cache: true
       - name: Install dependencies
         run: uv sync --dev
@@ -47,11 +47,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-html-{% raw %}${{ matrix.python-version }}{% endraw %}
+          name: coverage-html-{% raw %}${{ '{{ matrix.python-version }} '}}{% endraw %}
           path: _build/htmlcov
 
   quality:
-    if: {% raw %}${{ ! contains(github.event.head_commit.message, 'Bumpversion') }}{% endraw %}
+    if: {% raw %}${{ '{{ ! contains(github.event.head_commit.message, 'Bumpversion') }} '}}{% endraw %}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -71,7 +71,7 @@ jobs:
         run: uv run invoke qa.all
 
   docs:
-    if: {% raw %}${{ ! contains(github.event.head_commit.message, 'Bumpversion') }}{% endraw %}
+    if: {% raw %}${{ '{{ ! contains(github.event.head_commit.message, 'Bumpversion') }} '}}{% endraw %}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo

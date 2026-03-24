@@ -27,26 +27,26 @@ permissions:
 
 jobs:
   publish:
-    if: {% raw %}${{ inputs.publish_mode == 'release-tag' || inputs.confirm_publish == true }}{% endraw %}
+    if: {% raw %}${{ '{{ inputs.publish_mode == 'release-tag' || inputs.confirm_publish == true }} '}}{% endraw %}
     runs-on: ubuntu-latest
     outputs:
-      published_version: {% raw %}${{ steps.package_version.outputs.version }}{% endraw %}
+      published_version: {% raw %}${{ '{{ steps.package_version.outputs.version }} '}}{% endraw %}
     steps:
     - uses: actions/checkout@v6
       with:
-        ref: {% raw %}${{ inputs.target_ref || github.ref_name || 'main' }}{% endraw %}
+        ref: {% raw %}${{ '{{ inputs.target_ref || github.ref_name || 'main' }} '}}{% endraw %}
     - name: Require main branch for manual publish
-      if: {% raw %}${{ inputs.publish_mode == 'manual' }}{% endraw %}
+      if: {% raw %}${{ '{{ inputs.publish_mode == 'manual' }} '}}{% endraw %}
       run: |
-        publish_ref="{% raw %}${{ inputs.target_ref || github.ref_name || 'main' }}{% endraw %}"
+        publish_ref="{% raw %}${{ '{{ inputs.target_ref || github.ref_name || 'main' }} '}}{% endraw %}"
         if [[ "${publish_ref}" != "main" ]]; then
           echo "Manual publish is only allowed from the main branch." >&2
           exit 1
         fi
     - name: Require tag ref for automated release publish
-      if: {% raw %}${{ inputs.publish_mode == 'release-tag' }}{% endraw %}
+      if: {% raw %}${{ '{{ inputs.publish_mode == 'release-tag' }} '}}{% endraw %}
       run: |
-        publish_ref="{% raw %}${{ inputs.target_ref || github.ref_name }}{% endraw %}"
+        publish_ref="{% raw %}${{ '{{ inputs.target_ref || github.ref_name }} '}}{% endraw %}"
         if [[ ! "${publish_ref}" =~ ^v[0-9] ]]; then
           echo "Automated release publish requires a version tag ref, got '${publish_ref}'." >&2
           exit 1
@@ -71,28 +71,28 @@ jobs:
       run: |
         echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
     - name: Summarize manual publish
-      if: {% raw %}${{ inputs.publish_mode == 'manual' }}{% endraw %}
+      if: {% raw %}${{ '{{ inputs.publish_mode == 'manual' }} '}}{% endraw %}
       run: |
         {
           echo "## Manual Package Publish"
           echo
-          echo "- Source branch: {% raw %}${{ inputs.target_ref || github.ref_name || 'main' }}{% endraw %}"
+          echo "- Source branch: {% raw %}${{ '{{ inputs.target_ref || github.ref_name || 'main' }} '}}{% endraw %}"
           echo "- Published version: $(uv version --short)"
           echo "- Trigger: workflow_dispatch"
         } >> "$GITHUB_STEP_SUMMARY"
     - name: Summarize automated release publish
-      if: {% raw %}${{ inputs.publish_mode == 'release-tag' }}{% endraw %}
+      if: {% raw %}${{ '{{ inputs.publish_mode == 'release-tag' }} '}}{% endraw %}
       run: |
         {
           echo "## Release Package Publish"
           echo
-          echo "- Source tag: {% raw %}${{ inputs.target_ref || github.ref_name }}{% endraw %}"
+          echo "- Source tag: {% raw %}${{ '{{ inputs.target_ref || github.ref_name }} '}}{% endraw %}"
           echo "- Published version: $(uv version --short)"
           echo "- Trigger: workflow_dispatch"
         } >> "$GITHUB_STEP_SUMMARY"
 
   documentation:
-    if: {% raw %}${{ needs.publish.result == 'success' }}{% endraw %}
+    if: {% raw %}${{ '{{ needs.publish.result == 'success' }} '}}{% endraw %}
     needs: [publish]
     permissions:
       contents: write
@@ -100,8 +100,8 @@ jobs:
       id-token: write
     uses: ./.github/workflows/docs.yml
     with:
-      target_ref: {% raw %}${{ inputs.target_ref || github.ref_name || 'main' }}{% endraw %}
-      docs_version: {% raw %}${{ needs.publish.outputs.published_version }}{% endraw %}
-      docs_alias: {% raw %}${{ needs.publish.outputs.published_version }}{% endraw %}
+      target_ref: {% raw %}${{ '{{ inputs.target_ref || github.ref_name || 'main' }} '}}{% endraw %}
+      docs_version: {% raw %}${{ '{{ needs.publish.outputs.published_version }} '}}{% endraw %}
+      docs_alias: {% raw %}${{ '{{ needs.publish.outputs.published_version }} '}}{% endraw %}
       set_default: true
     secrets: inherit

@@ -6,7 +6,7 @@ on:
     types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review]
 
 concurrency:
-  group: release-preview-{% raw %}${{ github.event.pull_request.number }}{% endraw %}
+  group: release-preview-{% raw %}${{ '{{ github.event.pull_request.number }} '}}{% endraw %}
   cancel-in-progress: true
 
 permissions:
@@ -38,7 +38,7 @@ jobs:
         id: release_plan
         run: |
           python .github/scripts/release_version.py plan \
-            --labels-json '{% raw %}${{ toJson(github.event.pull_request.labels.*.name) }}{% endraw %}' \
+            --labels-json '{% raw %}${{ '{{ toJson(github.event.pull_request.labels.*.name) }} '}}{% endraw %}' \
             --github-output "$GITHUB_OUTPUT"
 
       - name: Summarize release preview
@@ -46,9 +46,9 @@ jobs:
           {
             echo "## Release Preview"
             echo
-            echo "- Current version: {% raw %}${{ steps.release_plan.outputs.current_version }}{% endraw %}"
-            echo "- Release bump: {% raw %}${{ steps.release_plan.outputs.bump_type }}{% endraw %}"
-            echo "- Next version on merge: v{% raw %}${{ steps.release_plan.outputs.next_version }}{% endraw %}"
+            echo "- Current version: {% raw %}${{ '{{ steps.release_plan.outputs.current_version }} '}}{% endraw %}"
+            echo "- Release bump: {% raw %}${{ '{{ steps.release_plan.outputs.bump_type }} '}}{% endraw %}"
+            echo "- Next version on merge: v{% raw %}${{ '{{ steps.release_plan.outputs.next_version }} '}}{% endraw %}"
             echo
             echo "Supported labels: release:major, release:minor, release:patch"
             echo "Default behavior without a release label: patch"

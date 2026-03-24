@@ -69,7 +69,7 @@ on:
         default: true
 
 concurrency:
-  group: docs-{% raw %}${{ inputs.docs_version || github.ref }}{% endraw %}
+  group: docs-{% raw %}${{ '{{ inputs.docs_version || github.ref }} '}}{% endraw %}
   cancel-in-progress: true
 
 permissions:
@@ -79,12 +79,12 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ '{{ steps.deployment.outputs.page_url }} '}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: {% raw %}${{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }}{% endraw %}
+          ref: {% raw %}${{ '{{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }} '}}{% endraw %}
           fetch-depth: 0
       - name: Set up Python "3.14"
         uses: actions/setup-python@v5
@@ -104,12 +104,12 @@ jobs:
       - name: Resolve docs publication arguments
         id: docs_args
         env:
-          INPUT_TARGET_REF: {% raw %}${{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }}{% endraw %}
-          INPUT_PUBLISH_MODE: {% raw %}${{ inputs.publish_mode || github.event.inputs.publish_mode || 'manual' }}{% endraw %}
-          INPUT_CONFIRM_PUBLISH: {% raw %}${{ inputs.confirm_publish || github.event.inputs.confirm_publish || 'false' }}{% endraw %}
-          INPUT_DOCS_VERSION: {% raw %}${{ inputs.docs_version || github.event.inputs.docs_version || 'dev' }}{% endraw %}
-          INPUT_DOCS_ALIAS: {% raw %}${{ inputs.docs_alias || github.event.inputs.docs_alias || 'dev' }}{% endraw %}
-          INPUT_SET_DEFAULT: {% raw %}${{ inputs.set_default || github.event.inputs.set_default || 'true' }}{% endraw %}
+          INPUT_TARGET_REF: {% raw %}${{ '{{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }} '}}{% endraw %}
+          INPUT_PUBLISH_MODE: {% raw %}${{ '{{ inputs.publish_mode || github.event.inputs.publish_mode || 'manual' }} '}}{% endraw %}
+          INPUT_CONFIRM_PUBLISH: {% raw %}${{ '{{ inputs.confirm_publish || github.event.inputs.confirm_publish || 'false' }} '}}{% endraw %}
+          INPUT_DOCS_VERSION: {% raw %}${{ '{{ inputs.docs_version || github.event.inputs.docs_version || 'dev' }} '}}{% endraw %}
+          INPUT_DOCS_ALIAS: {% raw %}${{ '{{ inputs.docs_alias || github.event.inputs.docs_alias || 'dev' }} '}}{% endraw %}
+          INPUT_SET_DEFAULT: {% raw %}${{ '{{ inputs.set_default || github.event.inputs.set_default || 'true' }} '}}{% endraw %}
         run: |
           echo "target_ref=${INPUT_TARGET_REF}" >> "$GITHUB_OUTPUT"
           echo "publish_mode=${INPUT_PUBLISH_MODE}" >> "$GITHUB_OUTPUT"
@@ -120,22 +120,22 @@ jobs:
       - name: Deploy versioned docs with mike
         run: |
           uv run invoke docs.deploy-version \
-            --version "{% raw %}${{ steps.docs_args.outputs.version }}{% endraw %}" \
-            --alias "{% raw %}${{ steps.docs_args.outputs.alias }}{% endraw %}"
+            --version "{% raw %}${{ '{{ steps.docs_args.outputs.version }} '}}{% endraw %}" \
+            --alias "{% raw %}${{ '{{ steps.docs_args.outputs.alias }} '}}{% endraw %}"
       - name: Set default docs version
-        if: {% raw %}${{ steps.docs_args.outputs.set_default == 'true' }}{% endraw %}
+        if: {% raw %}${{ '{{ steps.docs_args.outputs.set_default == 'true' }} '}}{% endraw %}
         run: |
           uv run invoke docs.set-default-version \
-            --version "{% raw %}${{ steps.docs_args.outputs.version }}{% endraw %}"
+            --version "{% raw %}${{ '{{ steps.docs_args.outputs.version }} '}}{% endraw %}"
       - name: Summarize docs publish
         run: |
           {
             echo "## Documentation Publish"
             echo
-            echo "- Source ref: {% raw %}${{ steps.docs_args.outputs.target_ref }}{% endraw %}"
-            echo "- Publish mode: {% raw %}${{ steps.docs_args.outputs.publish_mode }}{% endraw %}"
-            echo "- Publish confirmed: {% raw %}${{ steps.docs_args.outputs.confirm_publish }}{% endraw %}"
-            echo "- Docs version: {% raw %}${{ steps.docs_args.outputs.version }}{% endraw %}"
-            echo "- Docs alias: {% raw %}${{ steps.docs_args.outputs.alias }}{% endraw %}"
-            echo "- Default version updated: {% raw %}${{ steps.docs_args.outputs.set_default }}{% endraw %}"
+            echo "- Source ref: {% raw %}${{ '{{ steps.docs_args.outputs.target_ref }} '}}{% endraw %}"
+            echo "- Publish mode: {% raw %}${{ '{{ steps.docs_args.outputs.publish_mode }} '}}{% endraw %}"
+            echo "- Publish confirmed: {% raw %}${{ '{{ steps.docs_args.outputs.confirm_publish }} '}}{% endraw %}"
+            echo "- Docs version: {% raw %}${{ '{{ steps.docs_args.outputs.version }} '}}{% endraw %}"
+            echo "- Docs alias: {% raw %}${{ '{{ steps.docs_args.outputs.alias }} '}}{% endraw %}"
+            echo "- Default version updated: {% raw %}${{ '{{ steps.docs_args.outputs.set_default }} '}}{% endraw %}"
           } >> "$GITHUB_STEP_SUMMARY"
