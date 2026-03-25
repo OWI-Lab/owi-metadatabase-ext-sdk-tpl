@@ -30,6 +30,16 @@ author_email:
   help: Author email
   default: "info@owi-lab.be"
 
+author_affiliation:
+  type: str
+  help: Author affiliation
+  default: "OWI-Lab"
+
+author_affiliation_url:
+  type: str
+  help: Author affiliation URL
+  default: "https://www.owi-lab.be/"
+
 python_version:
   type: str
   help: Minimum Python version
