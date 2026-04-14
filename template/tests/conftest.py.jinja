@@ -1,1 +1,48 @@
 """Test fixtures."""
+{% if include_docker %}
+import os
+
+import pytest
+
+
+DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
+DB_PORT = int(os.environ.get("POSTGRES_PORT", "5432"))
+DB_NAME = os.environ.get("POSTGRES_DB", "{{ project_slug }}_db")
+DB_USER = os.environ.get("POSTGRES_USER", "{{ project_slug }}_user")
+DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "testpassword")
+
+
+@pytest.fixture(scope="session")
+def db_connection():
+    """Yield a live psycopg2 connection to the test database.
+
+    The test is automatically skipped when the database is not reachable so
+    the standard unit-test suite can still run without Docker.
+    """
+    psycopg2 = pytest.importorskip("psycopg2")
+    try:
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            connect_timeout=5,
+        )
+    except (psycopg2.OperationalError, psycopg2.InterfaceError) as exc:
+        pytest.skip(
+            f"Database not available at {DB_HOST}:{DB_PORT}/{DB_NAME} — {exc}\n"
+            "Start the database with: docker compose up -d"
+        )
+    yield conn
+    conn.close()
+
+
+@pytest.fixture
+def db_cursor(db_connection):
+    """Yield a cursor and roll back changes after each test."""
+    cursor = db_connection.cursor()
+    yield cursor
+    db_connection.rollback()
+    cursor.close()
+{% endif %}

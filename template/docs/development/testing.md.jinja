@@ -12,7 +12,7 @@ This command runs:
 |------|-------------|
 | **Unit tests** | `tests/` directory via pytest |
 | **Doctests** | Inline examples in source modules |
-| **Coverage** | HTML report in `htmlcov/` |
+| **Coverage** | HTML report in `_build/htmlcov/` |
 
 ## Configuration
 
@@ -34,3 +34,37 @@ testpaths = ["tests", "src"]
 - Mirror the source tree under `tests/{{ project_slug }}/`.
 - Mock `owi.metadatabase.{{ project_slug }}.io.API.process_data` for API tests.
 - Keep tests focused and independent.
+{% if include_docker %}
+## Integration Tests with Docker
+
+A local PostgreSQL database can be started with:
+
+```bash
+docker compose up -d
+```
+
+Once the database is healthy, run the full test suite (including integration
+tests) with:
+
+```bash
+uv run inv test
+```
+
+Integration tests that require the database use the `db_connection` fixture
+from `tests/conftest.py`. They are automatically skipped when the database is
+not reachable, so the unit-test suite can always run without Docker.
+
+### Loading CSV Data
+
+Place CSV files in `tests/data/`. Each file must be named after the target
+table (e.g. `records.csv` populates the `records` table). The database
+container loads these files automatically on first start via
+`docker/postgres/init/02_load_csv.sh`.
+
+To reload data after modifying the CSVs:
+
+```bash
+docker compose down -v   # removes the named volume
+docker compose up -d     # recreates and reloads
+```
+{% endif %}

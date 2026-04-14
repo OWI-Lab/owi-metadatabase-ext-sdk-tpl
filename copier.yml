@@ -65,3 +65,19 @@ include_numerical:
   type: bool
   help: Include numerical dependencies (scipy, scikit-learn)?
   default: false
+
+include_docker:
+  type: bool
+  help: Include Docker Compose + PostgreSQL setup for local integration testing?
+  default: false
+
+_tasks:
+  - command:
+      - python
+      - -c
+      - |
+        import shutil, pathlib
+        shutil.rmtree('docker', ignore_errors=True)
+        p = pathlib.Path('docker-compose.yml')
+        p.unlink(missing_ok=True)
+    when: "{{ not include_docker }}"

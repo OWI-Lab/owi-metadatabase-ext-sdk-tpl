@@ -1,0 +1,13 @@
+-- schema for your extension
+-- Customize this file to define the tables that mirror the OWI Metadatabase
+-- data model for your extension.
+--
+-- Example table structure (replace with your actual schema):
+--
+-- CREATE TABLE IF NOT EXISTS myproject_records (
+--     id          SERIAL PRIMARY KEY,
+--     site_id     VARCHAR(64) NOT NULL,
+--     name        VARCHAR(255),
+--     description TEXT,
+--     created_at  TIMESTAMPTZ DEFAULT NOW()
+-- );
