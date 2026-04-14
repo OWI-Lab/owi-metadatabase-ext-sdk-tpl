@@ -32,7 +32,9 @@ for csv_file in "${csv_files[@]}"; do
     table_name="$(basename "$csv_file" .csv)"
 
     # Validate table name: only allow alphanumeric characters and underscores
-    # to prevent SQL injection via malicious file names.
+    # to prevent shell or SQL injection via malicious filenames.
+    # psql \COPY meta-commands do not support variable substitution for table
+    # names, so whitelist validation of the identifier is the correct defence.
     if [[ ! "$table_name" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
         echo "WARNING: Skipping '$csv_file' — table name '$table_name' contains invalid characters." >&2
         continue

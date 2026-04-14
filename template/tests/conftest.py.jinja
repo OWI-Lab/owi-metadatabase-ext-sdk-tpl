@@ -29,7 +29,7 @@ def db_connection():
             password=DB_PASSWORD,
             connect_timeout=5,
         )
-    except psycopg2.OperationalError as exc:
+    except (psycopg2.OperationalError, psycopg2.InterfaceError) as exc:
         pytest.skip(
             f"Database not available at {DB_HOST}:{DB_PORT}/{DB_NAME} — {exc}\n"
             "Start the database with: docker compose up -d"
