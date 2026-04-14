@@ -32,11 +32,11 @@ def get_current_system():
 system = get_current_system()
 
 if system in [OperatingSystem.LINUX, OperatingSystem.MAC]:
-    COV_DOC_BUILD_DIR = "build/htmlcov"
-    DOCS_BUILD_DIR = "build/docs"
+    COV_DOC_BUILD_DIR = "_build/htmlcov"
+    DOCS_BUILD_DIR = "_build/docs"
 elif system == OperatingSystem.WINDOWS:
     COV_DOC_BUILD_DIR = r"_build\htmlcov"
-    DOCS_BUILD_DIR = r"build\docs"
+    DOCS_BUILD_DIR = r"_build\docs"
 else:
     raise ValueError(f"System {system} is not supported")
 

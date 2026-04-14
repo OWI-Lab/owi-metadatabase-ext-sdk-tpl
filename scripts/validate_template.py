@@ -25,6 +25,7 @@ def main() -> int:
             "uvx",
             "copier",
             "copy",
+            "--trust",
             "-f",
             str(ROOT),
             str(sample_project),
@@ -46,6 +47,8 @@ def main() -> int:
             "include_visualization=false",
             "--data",
             "include_numerical=false",
+            "--data",
+            "include_docker=false",
             cwd=ROOT,
         )
         run_command("uv", "sync", "--all-packages", "--all-extras", "--all-groups", cwd=sample_project)

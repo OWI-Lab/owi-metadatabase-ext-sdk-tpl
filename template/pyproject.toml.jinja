@@ -55,7 +55,12 @@ test = [
     "pytest-clarity >=1.0.0",
     "pytest-cov >=7.0.0",
     "requests-mock >=1.12.1",
-    "hypothesis >=6.100.0"
+    "hypothesis >=6.100.0",
+    {% if include_docker %}
+    # psycopg2-binary bundles its own libpq and is suitable for testing.
+    # For production deployments, replace with psycopg2 and install system libpq.
+    "psycopg2-binary >=2.9.0",
+    {% endif %}
 ]
 lint = [
     "ruff>=0.12.9",
